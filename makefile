@@ -1,15 +1,12 @@
 SHELL = /bin/bash
 CC = gcc
-CFLAGS = -O2 -lncurses -Wall
-LIB = list.c
+CFLAGS = -O2 -Wall
+LIB = -lncurses
 SRC = $(filter-out $(LIB), $(wildcard *.c))
 EXE = $(patsubst %.c, %, $(SRC))
 
-.PHONY: all
-all: $(EXE)
-
 shell: $(LIB) shell.c makefile
-	$(CC) $(CFLAGS) $(LIB) shell.c -o shell
+	$(CC) $(CFLAGS) list.c shell.c -o shell $(LIB)
 
 .PHONY: clean
 clean: $(EXE)

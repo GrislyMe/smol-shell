@@ -1,15 +1,4 @@
-#include "list.h"
-#include <ncurses.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-#define GREEN 1
-#define RED 2
-#define BLUE 3
-#define WHITE 4
-
-char header[] = ">[shell]$ ";
+#include "shell.h"
 
 node* cmd;
 int load_cmd(char* path) {
@@ -43,27 +32,32 @@ char* auto_comp(char* args, char* last) {
 	return 0;
 }
 
-int read_input(WINDOW* win) {
+inline int clear_comp(WINDOW* win, char* tmp, char* buff) {
+	int x, y;
+	getyx(win, y, x);
+	for (int i = 0; i < strlen(tmp + strlen(buff)); i++)
+		mvdelch(y, x - i - 1);
+	return 0;
+}
+
+int read_input(WINDOW* win, char* ret) {
 	char input = 0;
 	char buff[256];
 	char* tmp = 0;
 	int index = 0;
 	int x, y;
-	while (input != '\n') {
+	while (1) {
 		switch (input = getch()) {
 		case '\t':
-			if (tmp) {
-				getyx(win, y, x);
-				for (int i = 0; i < strlen(tmp + strlen(buff)); i++)
-					mvdelch(y, x - i - 1);
-			}
+			if (tmp)
+				clear_comp(win, tmp, buff);
 
 			tmp = auto_comp(buff, tmp);
 
 			if (tmp) {
-				attron(A_UNDERLINE);
+				attron(A_UNDERLINE | COLOR_PAIR(GRAY));
 				addstr(tmp + strlen(buff));
-				attroff(A_UNDERLINE);
+				attroff(A_UNDERLINE | COLOR_PAIR(GRAY));
 			}
 			break;
 		case 127:
@@ -72,16 +66,27 @@ int read_input(WINDOW* win) {
 				break;
 
 			if (tmp) {
-				for (int i = 0; i < strlen(tmp + strlen(buff)); i++)
-					mvdelch(y, x - i - 1);
+				clear_comp(win, tmp, buff);
 				tmp = 0;
 			} else {
 				mvdelch(y, x - 1);
-				buff[index] = '\0';
 				index--;
 				buff[index] = '\0';
 			}
 			break;
+		case '\n':
+			if (tmp) {
+				clear_comp(win, tmp, buff);
+				addstr(tmp + strlen(buff));
+
+				strcpy(buff, tmp);
+				index = strlen(buff);
+				tmp = 0;
+				break;
+			} else {
+				strcpy(ret, buff);
+				return 0;
+			}
 		default:
 			addch(input | COLOR_PAIR(WHITE));
 			buff[index] = input;
@@ -92,25 +97,27 @@ int read_input(WINDOW* win) {
 	return 0;
 }
 
+void init_color_pair() {
+	init_pair(GREEN, COLOR_GREEN, COLOR_BLACK);
+	init_pair(RED, COLOR_RED, COLOR_BLACK);
+	init_pair(BLUE, COLOR_BLUE, COLOR_BLACK);
+	init_pair(WHITE, COLOR_WHITE, COLOR_BLACK);
+	init_pair(GRAY, 8, COLOR_BLACK);
+}
+
 int main() {
 	WINDOW* win = initscr();
 	load_cmd("tmp");
 	raw();
 	noecho();
 	start_color();
-	init_pair(GREEN, COLOR_GREEN, COLOR_BLACK);
-	init_pair(RED, COLOR_RED, COLOR_BLACK);
-	init_pair(BLUE, COLOR_BLUE, COLOR_BLACK);
-	init_pair(WHITE, COLOR_WHITE, COLOR_BLACK);
+	init_color_pair();
 
 	attron(COLOR_PAIR(GREEN));
 	addstr(header);
 	attroff(COLOR_PAIR(GREEN));
-	read_input(win);
-	// WINDOW* win = newwin(15, 17, 2, 10);
-	// box(win, 0, 0);
-	// mvwprintw(win, 0, 1, "Greeter");
-	// wrefresh(win);
-	// getch();
+	char input[256];
+	read_input(win, input);
+	getch();
 	endwin();
 }
