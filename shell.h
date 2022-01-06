@@ -16,5 +16,5 @@
 void init_color_pair();
 int load_cmd(char* path);
 char* auto_comp(char* args, char* last);
-inline int clear_comp(WINDOW* win, char* tmp, char* buff);
+int clear_comp(WINDOW* win, char* tmp, char* buff);
 int read_input(WINDOW* win, char* ret);

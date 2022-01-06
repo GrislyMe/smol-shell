@@ -105,19 +105,19 @@ void init_color_pair() {
 	init_pair(GRAY, 8, COLOR_BLACK);
 }
 
-int main() {
-	WINDOW* win = initscr();
-	load_cmd("tmp");
-	raw();
-	noecho();
-	start_color();
-	init_color_pair();
-
-	attron(COLOR_PAIR(GREEN));
-	addstr(header);
-	attroff(COLOR_PAIR(GREEN));
-	char input[256];
-	read_input(win, input);
-	getch();
-	endwin();
-}
+// int main() {
+// WINDOW* win = initscr();
+// load_cmd("tmp");
+// raw();
+// noecho();
+// start_color();
+// init_color_pair();
+//
+// attron(COLOR_PAIR(GREEN));
+// addstr(header);
+// attroff(COLOR_PAIR(GREEN));
+// char input[256];
+// read_input(win, input);
+// getch();
+// endwin();
+// }

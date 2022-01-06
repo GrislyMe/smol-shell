@@ -5,7 +5,7 @@ LIB = -lncurses
 SRC = $(filter-out $(LIB), $(wildcard *.c))
 EXE = $(patsubst %.c, %, $(SRC))
 
-shell: $(LIB) shell.c makefile
+shell: list.c shell.c makefile
 	$(CC) $(CFLAGS) list.c shell.c -o shell $(LIB)
 
 .PHONY: clean
